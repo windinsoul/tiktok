@@ -9,7 +9,7 @@ import (
 var Db *gorm.DB
 
 func InitDb() {
-	Db, err := gorm.Open("mysql", "root:123456@(127.0.0.1:3306)/douyin?charset=utf8mb4&parseTime=True&loc=Local")
+	Db, err := gorm.Open("mysql", "root:123456@(1.12.60.132:3306)/douyin?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err)
 	}
