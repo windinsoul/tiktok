@@ -1,27 +1,34 @@
 package dao
 
 import (
-	"github.com/RaymondCode/simple-demo/controller"
+	"github.com/RaymondCode/simple-demo/config"
 	"time"
 )
 
-func AddVideoToDb(video controller.Video, Time time.Time) error {
-	if result := Db.Create(&video); result.Error != nil {
-		return result.Error
-	}
+type Video struct {
+	Id            int64 `json:"id,omitempty"`
+	AuthorId      int64
+	PlayUrl       string `json:"play_url" json:"play_url,omitempty"`
+	CoverUrl      string `json:"cover_url,omitempty"`
+	PublishTime   time.Time
+	Author        User  `json:"author"`
+	FavoriteCount int64 `json:"favorite_count,omitempty"`
+	CommentCount  int64 `json:"comment_count,omitempty"`
+}
 
-	videoPublishTime := controller.VideoPublishTime{
-		Video:       video,
-		PublishTime: Time,
-	}
-	if result := Db.Create(&videoPublishTime); result.Error != nil {
-		return result.Error
+func AddVideoToDb(video []Video, Time time.Time) error {
+	for _, x := range video {
+		if result := Db.Create(&x); result.Error != nil {
+			return result.Error
+		}
 	}
 	return nil
 }
 
-func GetVideoFromDb(last_time time.Time) ([]controller.Video, error) {
-	var ret []controller.Video
-	Db.Where("id < ?", "31").Find(&ret)
+func GetVideoByLastTime(lastTime time.Time) ([]Video, error) {
+	ret := make([]Video, config.VideoNum)
+	if res := Db.Where("publish_time < ?", lastTime).Order("publish_time desc").Limit(config.VideoNum).Find(&ret); res.Error != nil {
+		return ret, res.Error
+	}
 	return ret, nil
 }

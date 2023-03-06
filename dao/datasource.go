@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/RaymondCode/simple-demo/controller"
+	"github.com/RaymondCode/simple-demo/service"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -19,5 +19,5 @@ func InitDb() {
 	//defer db.Close()
 
 	//自动迁移
-	Db.AutoMigrate(&controller.Video{}, &controller.VideoPublishTime{})
+	Db.AutoMigrate(&Video{}, &service.VideoForService{})
 }
