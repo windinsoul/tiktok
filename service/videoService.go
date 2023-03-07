@@ -7,6 +7,7 @@ import (
 
 type VideoForService struct {
 	dao.Video
+	Author          UserForService
 	IsWatchedUserId int64 `json:"is_watched_user_id"`
 	IsFavorite      bool  `json:"is_favorite,omitempty"`
 }
