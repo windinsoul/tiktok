@@ -1,9 +1,13 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"sync/atomic"
+
+	"github.com/RaymondCode/simple-demo/dao"
+	"github.com/RaymondCode/simple-demo/service"
+	"github.com/gin-gonic/gin"
 )
 
 // usersLoginInfo use map to store user info, and key is username+password for demo
@@ -36,19 +40,37 @@ func Register(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
 
-	token := username + password
+	//token := username + password
+	//需要检查username，exist的话，就1
+	// if _, exist := usersLoginInfo[token]; exist {
+	// 	c.JSON(http.StatusOK, UserLoginResponse{
+	// 		Response: Response{StatusCode: 1, StatusMsg: "User already exist"},
+	// 	})
+	// }
 
-	if _, exist := usersLoginInfo[token]; exist {
+	exist, err := service.UserIfExist(username)
+	if err != nil {
+		log.Println("query if exist failed")
+		panic("user.go gg")
+	}
+	if exist {
 		c.JSON(http.StatusOK, UserLoginResponse{
 			Response: Response{StatusCode: 1, StatusMsg: "User already exist"},
 		})
 	} else {
+		//没有这个user，就新建一个user
 		atomic.AddInt64(&userIdSequence, 1)
-		newUser := User{
-			Id:   userIdSequence,
-			Name: username,
+		newUser := dao.User{
+			Id:       userIdSequence,
+			Name:     username,
+			Password: password,
 		}
-		usersLoginInfo[token] = newUser
+		//需要一个新建的函数
+		service.CreateUser(newUser)
+
+		//token数据库
+		//usersLoginInfo[token] = newUser
+		//返回client基本信息和token
 		c.JSON(http.StatusOK, UserLoginResponse{
 			Response: Response{StatusCode: 0},
 			UserId:   userIdSequence,
